@@ -14,7 +14,23 @@ public class Subsequence {
      */
     @SuppressWarnings("rawtypes")
     public boolean find(List x, List y) {
-        // TODO: Implement the logic here
-        return false;
+        if (x == null || y == null) {
+            throw new IllegalArgumentException("Lists must not be null");
+        }
+
+        int indexInShortSequence = 0;
+        int shortSequenceSize = x.size();
+        int indexInLongSequence = 0;
+        int longSequenceSize = y.size();
+
+        while (indexInShortSequence < shortSequenceSize &&
+                indexInLongSequence < longSequenceSize) {
+            if (x.get(indexInShortSequence) == y.get(indexInLongSequence)) {
+                indexInShortSequence++;
+            }
+            indexInLongSequence++;
+        }
+
+        return (indexInShortSequence == shortSequenceSize);
     }
 }
