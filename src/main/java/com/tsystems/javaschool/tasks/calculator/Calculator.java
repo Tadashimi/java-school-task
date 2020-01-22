@@ -25,21 +25,17 @@ public class Calculator {
                     calculatedResult.isNaN()) {
                 return null;
             }
-            if (isInteger(calculatedResult)) {
-                return Integer.valueOf(calculatedResult.intValue()).toString();
-            } else {
-                return calculatedResult.toString();
-            }
+            return getResultString(calculatedResult);
         } catch (IllegalArgumentException e) {
             return null;
         }
     }
 
     /**
-     * Calculates expression in postfix form
+     * Calculates expression in postfix form.
      *
-     * @param postfixNotation statement in postfix notation
-     * @return calculated value
+     * @param postfixNotation statement in postfix notation.
+     * @return calculated value.
      */
     private static Double calculateResult(String postfixNotation) {
         Stack<Double> operandStack = new Stack<>();
@@ -85,13 +81,13 @@ public class Calculator {
     }
 
     /**
-     * Perform a single operations
+     * Perform a single operations.
      *
-     * @param firstDigit  participate in operation
-     * @param secondDigit participate in operation
-     * @param operator    type of operation
-     * @return result of operation
-     * @throws IllegalArgumentException when character operator is incorrect
+     * @param firstDigit  participate in operation.
+     * @param secondDigit participate in operation.
+     * @param operator    type of operation.
+     * @return result of operation.
+     * @throws IllegalArgumentException when character operator is incorrect.
      */
     private static double calculateSingleOperations(Double firstDigit, Double secondDigit, Character operator) {
         switch (operator) {
@@ -112,11 +108,29 @@ public class Calculator {
     /**
      * Checks if double value does not contain any decimal part.
      *
-     * @param variable double variable for check
-     * @return true if double does not contain any decimal part
+     * @param variable double variable for check.
+     * @return true if double does not contain any decimal part.
      */
     private boolean isInteger(Double variable) {
         return (variable == Math.floor(variable)) && !Double.isInfinite(variable);
     }
 
+    private String getResultString(Double result) {
+        if (isInteger(result)) {
+            return Integer.valueOf(result.intValue()).toString();
+        }
+
+        return String.valueOf(roundResult(result));
+    }
+
+    /**
+     * Round double result to 4 significant digit.
+     *
+     * @param result dto be rounded.
+     * @return result with 4 significant digit.
+     */
+    private Double roundResult(Double result) {
+        double scale = Math.pow(10, 4);
+        return Math.round(result * scale) / scale;
+    }
 }
