@@ -115,11 +115,17 @@ public class Calculator {
         return (variable == Math.floor(variable)) && !Double.isInfinite(variable);
     }
 
+    /**
+     * Forms result string from calculated result.
+     *
+     * @param result to be convert to string
+     * @return string with integer value if input value does not contain any significant digit,
+     * rounded to 4 significant digits otherwise.
+     */
     private String getResultString(Double result) {
         if (isInteger(result)) {
             return Integer.valueOf(result.intValue()).toString();
         }
-
         return String.valueOf(roundResult(result));
     }
 
