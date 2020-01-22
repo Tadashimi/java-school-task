@@ -1,29 +1,42 @@
 package com.tsystems.javaschool.tasks.calculator;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
+
 
 public class PostfixConverter {
     private static final Character DIGIT_MARKER = '_';
+
+    /*
+     * Other operators, decimal delimiters and brackets can be added as correct symbols.
+     * If add new operator it will be necessary to add operation to {@link Calculator} method calculateSingleOperations.
+     */
     private static final Set<Character> OPERATORS = new HashSet<>(Arrays.asList('-', '+', '/', '*'));
+    private static final Set<Character> DECIMAL_DELIMITERS = new HashSet<>(Arrays.asList('.'));
+    private static final Set<Character> OPENING_BRACKETS = new HashSet<>(Arrays.asList('('));
+    private static final Set<Character> CLOSING_BRACKETS = new HashSet<>(Arrays.asList(')'));
+
     private static final Stack<Character> OPERATORS_STACK = new Stack<>();
 
     /**
      * Converts statement to postfix notation.
      * According Shunting-yard algorithm statement must be converted to postfix form.
      *
-     * @param statement initial statement
-     * @return string contains initial statement in postfix form
-     * @throws IllegalArgumentException if initial statement is incorrect
+     * @param statement initial statement.
+     * @return string contains initial statement in postfix form.
+     * @throws IllegalArgumentException if initial statement is incorrect.
      */
     public static String convertToPostfixNotation(String statement) {
         if (statement == null) {
             throw new IllegalArgumentException("Input statement must not be null");
         }
 
-        String workingStatement = prepareStatement(statement);
+        String statementWithoutWhiteSpaceSymbols = removeWhitespaceSymbolsStatement(statement);
+
+        if (!isCorrectStatement(statementWithoutWhiteSpaceSymbols)) {
+            throw new IllegalArgumentException("Input statement contains invalid symbols");
+        }
+
+        String workingStatement = highlightDigits(statementWithoutWhiteSpaceSymbols);
 
         StringBuilder resultStringBuilder = new StringBuilder();
         for (int i = 0; i < workingStatement.length(); i++) {
@@ -31,7 +44,7 @@ public class PostfixConverter {
             if (currentChar == DIGIT_MARKER) {
                 resultStringBuilder.append(currentChar);
             }
-            if (Character.isLetterOrDigit(currentChar)) {
+            if (isNumber(currentChar)) {
                 resultStringBuilder.append(currentChar);
             } else if (isOpeningBracket(currentChar)) {
                 if (i > 0 && (!isOperator(workingStatement.charAt(i - 1))
@@ -61,7 +74,7 @@ public class PostfixConverter {
                 }
                 Character poppedChar = OPERATORS_STACK.pop();
                 if (!isOpeningBracket(poppedChar)) {
-                    throw new IllegalArgumentException("The expression might be malformed!");
+                    throw new IllegalArgumentException("The expression might be malformed");
                 }
             }
         }
@@ -77,14 +90,68 @@ public class PostfixConverter {
     }
 
     /**
+     * Checks if character is a number (can be decimal number).
+     *
+     * @param character to be checked.
+     * @return {@code true} if character is number.
+     */
+    private static boolean isNumber(Character character) {
+        return Character.isDigit(character) || DECIMAL_DELIMITERS.contains(character);
+    }
+
+    /**
+     * Validates statement before convert to postfix form.
+     *
+     * @param statement to be checked.
+     * @return {@code true} if statement does not contain invalid symbols.
+     */
+    private static boolean isCorrectStatement(String statement) {
+        for (int i = 0; i < statement.length(); i++) {
+            Character currentCharacter = statement.charAt(i);
+            if (!Character.isDigit(currentCharacter) &&
+                    !OPERATORS.contains(currentCharacter) &&
+                    !DECIMAL_DELIMITERS.contains(currentCharacter) &&
+                    !OPENING_BRACKETS.contains(currentCharacter) &&
+                    !CLOSING_BRACKETS.contains(currentCharacter)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Removes all whitespace character and adds symbol before all digits.
      *
-     * @param statement input arithmetic expression
-     * @return string without whitespace character and with market digits
+     * @param statement input arithmetic expression.
+     * @return string without whitespace character.
      */
-    private static String prepareStatement(String statement) {
-        String statementWithoutSpaces = statement.replaceAll("\\s+", "");
-        return statementWithoutSpaces.replaceAll("(\\w+)", DIGIT_MARKER + "$1");
+    private static String removeWhitespaceSymbolsStatement(String statement) {
+        return statement.replaceAll("\\s+", "");
+    }
+
+    /**
+     * Adds marker before each number.
+     *
+     * @param statement input arithmetic expression.
+     * @return string marked digits.
+     */
+    private static String highlightDigits(String statement) {
+        return statement.replaceAll(formRegexForNumbers(), DIGIT_MARKER + "$1");
+    }
+
+    /**
+     * Creates a regex string with delimiters to indicate numbers in statement.
+     *
+     * @return regex string for digit.
+     */
+    private static String formRegexForNumbers() {
+        StringJoiner delimitersPart = new StringJoiner("|");
+        for (Character character : DECIMAL_DELIMITERS) {
+            delimitersPart.add("\\" + character);
+        }
+        String delimiters = delimitersPart.toString();
+
+        return "(\\d+(" + delimiters + "\\d+)?)";
     }
 
     /**
@@ -94,7 +161,7 @@ public class PostfixConverter {
      * @return {@code true} if character is opening bracket symbol
      */
     private static boolean isOpeningBracket(Character character) {
-        return character == '(';
+        return OPENING_BRACKETS.contains(character);
     }
 
     /**
@@ -104,7 +171,7 @@ public class PostfixConverter {
      * @return {@code true} if character is closing bracket symbol
      */
     private static boolean isClosingBracket(Character character) {
-        return character == ')';
+        return CLOSING_BRACKETS.contains(character);
     }
 
     /**

@@ -8,12 +8,6 @@ import static com.tsystems.javaschool.tasks.calculator.PostfixConverter.isOperat
 
 public class Calculator {
 
-    //Temp method. Will be removed in the future version
-    public static void main(String[] args) {
-        Calculator c = new Calculator();
-        System.out.println(c.evaluate("(1 + 38) * 4.5 - 1 / 2"));
-    }
-
     /**
      * Evaluates statement represented as string.
      *
@@ -25,7 +19,7 @@ public class Calculator {
     public String evaluate(String statement) {
         try {
             String postfixNotation = convertToPostfixNotation(statement);
-            Double calculatedResult = calculate(postfixNotation);
+            Double calculatedResult = calculateResult(postfixNotation);
             if (calculatedResult == null ||
                     calculatedResult.isInfinite() ||
                     calculatedResult.isNaN()) {
@@ -47,7 +41,7 @@ public class Calculator {
      * @param postfixNotation statement in postfix notation
      * @return calculated value
      */
-    private static Double calculate(String postfixNotation) {
+    private static Double calculateResult(String postfixNotation) {
         Stack<Double> operandStack = new Stack<>();
 
         boolean isUnderscore = false;
@@ -75,7 +69,7 @@ public class Calculator {
                 try {
                     Double secondDigit = operandStack.pop();
                     Double firstDigit = operandStack.pop();
-                    double result = evaluate(firstDigit, secondDigit, postfixNotation.charAt(i));
+                    double result = calculateSingleOperations(firstDigit, secondDigit, postfixNotation.charAt(i));
                     operandStack.push(result);
                 } catch (EmptyStackException e) {
                     return null;
@@ -99,7 +93,7 @@ public class Calculator {
      * @return result of operation
      * @throws IllegalArgumentException when character operator is incorrect
      */
-    private static double evaluate(Double firstDigit, Double secondDigit, Character operator) {
+    private static double calculateSingleOperations(Double firstDigit, Double secondDigit, Character operator) {
         switch (operator) {
             case '+':
                 return firstDigit + secondDigit;
